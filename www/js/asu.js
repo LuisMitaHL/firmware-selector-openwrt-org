@@ -1,5 +1,4 @@
 import { $, $$, hide, show, split } from "./utils.js";
-import { translate } from "./translation.js";
 
 export function createAsuRequestBuilder(context) {
   const { config, progress, ofsVersion, getCurrentDevice, updateImages } =
@@ -51,40 +50,54 @@ export function createAsuRequestBuilder(context) {
         break;
     }
 
-    const tr = message.startsWith("tr-") ? message.replaceAll("_", "-") : "";
     let status = "";
     if (loading) {
       status += `<progress style='margin-right: 10px;' max='100' value=${
-        progress[tr] || ""
+        progress[message] || ""
       }></progress>`;
     }
-    status += `<span class="${tr}">${message}</span>`;
+    status += `<span>${message}</span>`;
     $("#asu-buildstatus span").innerHTML = status;
-    translate();
   }
 
-  function buildAsuRequest(requestHash) {
-    $$("#download-table1 *").forEach((e) => e.remove());
-    $$("#download-links2 *").forEach((e) => e.remove());
-    $$("#download-extras2 *").forEach((e) => e.remove());
+  let buildData = null;
+
+  function buildAsuRequest(requestHash, data) {
+    // Clear any previous build output
     hide("#asu-log");
+
+    if (data) {
+      buildData = data;
+    }
 
     const currentDevice = getCurrentDevice();
     if (!currentDevice || !currentDevice.id) {
-      showStatus("bad profile", false, "error");
+      showStatus("No device selected", false, "error");
       return;
     }
 
-    const selectedVersion = $("#versions").value;
+    // Get version from config (hardcoded)
+    const selectedVersion = config.version || "25.12.2";
+
+    // Get packages from buildData (passed from main.js)
+    const packages = buildData ? buildData.packages : [];
+
+    // Get uci-defaults from buildData
+    const defaults = buildData ? buildData.defaults : "";
+
+    // Get version_code from buildData
+    const version_code = buildData ? buildData.version_code : "";
+
     const reposMode = config.asu_repositories_mode;
     const repositoriesMode =
-      reposMode === "replace" || reposMode === "append" ? reposMode : "";
+      reposMode === "replace" || reposMode === "append" ? reposMode : null;
+
     const buildBody = {
       profile: currentDevice.id,
       target: currentDevice.target,
-      packages: split($("#asu-packages").value),
-      defaults: $("#uci-defaults-content").value,
-      version_code: $("#image-code").innerText,
+      packages: packages,
+      defaults: defaults,
+      version_code: version_code,
       version: selectedVersion,
       diff_packages: true,
       client: "ofs/" + ofsVersion,
@@ -94,8 +107,12 @@ export function createAsuRequestBuilder(context) {
         selectedVersion
       ),
       repository_keys: config.asu_repository_keys || [],
-      repositories_mode: repositoriesMode,
     };
+
+    if (repositoriesMode) {
+      buildBody.repositories_mode = repositoriesMode;
+    }
+
     const requestUrl =
       `${config.asu_url}/api/v1/build` + (requestHash ? `/${requestHash}` : "");
 
@@ -110,16 +127,16 @@ export function createAsuRequestBuilder(context) {
       .then((response) => {
         switch (response.status) {
           case 200:
-            showStatus("tr-build-successful", false, "info");
+            showStatus("Build successful!", false, "info");
             response.json().then((mobj) => {
               if ("stderr" in mobj) {
-                $("#asu-stderr").innerText = mobj.stderr;
-                $("#asu-stdout").innerText = mobj.stdout;
+                if ($("#asu-stderr")) $("#asu-stderr").innerText = mobj.stderr;
+                if ($("#asu-stdout")) $("#asu-stdout").innerText = mobj.stdout;
                 show("#asu-log");
               } else {
                 hide("#asu-log");
               }
-              showStatus("tr-build-successful", false, "info");
+              showStatus("Build successful!", false, "info");
               mobj.id = currentDevice.id;
               mobj.asu_image_url = config.asu_url + "/store/" + mobj.bin_dir;
               updateImages(mobj.version_number, mobj);
@@ -127,11 +144,11 @@ export function createAsuRequestBuilder(context) {
             break;
           case 202:
             response.json().then((mobj) => {
-              showStatus(
-                `tr-${mobj.detail || mobj.imagebuilder_status || "init"}`,
-                true,
-                "info"
-              );
+              const detail =
+                mobj.detail ||
+                mobj.imagebuilder_status ||
+                "Queued...";
+              showStatus(detail, true, "info");
               if (mobj.detail && mobj.queue_position) {
                 $(
                   "#asu-buildstatus span"
@@ -143,8 +160,8 @@ export function createAsuRequestBuilder(context) {
           default:
             response.json().then((mobj) => {
               if ("stderr" in mobj) {
-                $("#asu-stderr").innerText = mobj.stderr;
-                $("#asu-stdout").innerText = mobj.stdout;
+                if ($("#asu-stderr")) $("#asu-stderr").innerText = mobj.stderr;
+                if ($("#asu-stdout")) $("#asu-stdout").innerText = mobj.stdout;
                 show("#asu-log");
               } else {
                 hide("#asu-log");
@@ -156,9 +173,9 @@ export function createAsuRequestBuilder(context) {
                 "stderr" in mobj &&
                 mobj.stderr.includes("images are too big")
               ) {
-                showStatus("tr-build-size", false, "error");
+                showStatus("Build failed: images are too big", false, "error");
               } else {
-                showStatus("tr-build-failed", false, "error");
+                showStatus("Build failed", false, "error");
               }
             });
             break;

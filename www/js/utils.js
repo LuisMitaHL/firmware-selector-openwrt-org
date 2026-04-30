@@ -39,10 +39,10 @@ export function setValue(query, value) {
       e.innerText = value;
     }
     show(e);
-    show(p);
+    if (p) show(p);
   } else {
     hide(e);
-    hide(p);
+    if (p) hide(p);
   }
 }
 

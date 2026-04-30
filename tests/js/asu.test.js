@@ -151,6 +151,7 @@ describe("createAsuRequestBuilder", () => {
     const build = createAsuRequestBuilder(
       makeContext({
         config: {
+          version: "23.05.4",
           asu_url: "http://asu.example.com",
           asu_repositories: {
             custom:
@@ -173,7 +174,7 @@ describe("createAsuRequestBuilder", () => {
     assert.equal(capturedBody.repositories_mode, "append");
   });
 
-  it("sends empty repositories_mode for unsupported mode values", async () => {
+  it("omits repositories_mode for unsupported mode values", async () => {
     let capturedBody;
     globalThis.fetch = fetchWithLangStub((_url, opts) => {
       capturedBody = JSON.parse(opts.body);
@@ -196,7 +197,7 @@ describe("createAsuRequestBuilder", () => {
     build();
     await new Promise((r) => setTimeout(r, 50));
 
-    assert.equal(capturedBody.repositories_mode, "");
+    assert.equal("repositories_mode" in capturedBody, false);
   });
 
   it("sends GET with hash appended when requestHash is provided", async () => {
