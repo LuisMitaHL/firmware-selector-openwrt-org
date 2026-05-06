@@ -14,7 +14,7 @@
     <!-- header across the whole page -->
     <header>
       <div>
-        <a href="https://openwrt.org">
+        <a href="#">
           <img src="logo.svg" width="180" alt="Logo" />
         </a>
         <div style="flex-grow: 1"></div>
@@ -32,22 +32,23 @@
 
     <div class="container">
       <div>
-        <h2>Build Custom OpenWrt Firmware</h2>
-        <p>Configure your firmware below and request a custom build.</p>
+        <h2>Generador de Firmware Pasankalla</h2>
+        <p>Configura cómo quieres tu firmware.</p>
+        <p>Nota que puedes dejar los valores por defecto sin problemas.</p>
 
         <div class="form-group">
-          <label for="device" class="form-label">Device</label>
+          <label for="device" class="form-label">Modelo de Router</label>
           <select id="device" class="form-select"></select>
         </div>
 
         <div class="form-group">
           <label for="root-password" class="form-label">Root Password</label>
-          <input type="text" id="root-password" class="form-input" placeholder="openwrteslinux" />
+          <input type="text" id="root-password" class="form-input" value="openwrteslinux" />
         </div>
 
         <div class="form-group">
           <label for="wifi-name" class="form-label">Wi-Fi Name (SSID)</label>
-          <input type="text" id="wifi-name" class="form-input" placeholder="MyWiFi" />
+          <input type="text" id="wifi-name" class="form-input" value="Pasankalla" />
         </div>
 
         <div class="form-group">
@@ -55,13 +56,13 @@
           <select id="wifi-encryption" class="form-select">
             <option value="wpa2">WPA2</option>
             <option value="open">Open</option>
-            <option value="owe">Enhanced Open</option>
+            <option value="owe" selected>Enhanced Open</option>
           </select>
         </div>
 
         <div class="form-group" id="wifi-password-group">
           <label for="wifi-password" class="form-label">Wi-Fi Password (min 8 chars)</label>
-          <input type="text" id="wifi-password" class="form-input" placeholder="12345678" />
+          <input type="text" id="wifi-password" class="form-input" value="12345678" />
         </div>
 
         <div class="form-group">
@@ -113,7 +114,7 @@
         </div>
 
         <a href="#" id="asu-request-build" class="build-link">
-          <span></span><span>BUILD FIRMWARE</span>
+          <span></span><span>PREPARAR FIRMWARE</span>
         </a>
 
         <!-- Download / images section (shown after build) -->
@@ -123,49 +124,6 @@
             <h3 class="tr-downloads"></h3>
             <table><tbody id="download-table1"></tbody></table>
           </div>
-          <div id="download-links2"></div>
-          <div id="download-extras2"></div>
-
-          <div class="row">
-            <div class="col1 tr-model"></div>
-            <div class="col2" id="image-model"></div>
-          </div>
-          <div class="row">
-            <div class="col1 tr-target"></div>
-            <div class="col2" id="image-target"></div>
-          </div>
-          <div class="row">
-            <div class="col1 tr-version-label"></div>
-            <div class="col2" id="image-version"></div>
-          </div>
-          <div class="row">
-            <div class="col1 tr-version-code"></div>
-            <div class="col2" id="image-code"></div>
-          </div>
-          <div class="row">
-            <div class="col1 tr-build-date"></div>
-            <div class="col2" id="image-date"></div>
-          </div>
-          <div class="row">
-            <a href="#" target="_blank" id="image-info" class="col1"></a>
-            <div class="col2" id="image-folder"></div>
-          </div>
-          <input id="image-link" type="hidden" />
-          <details id="asu">
-            <summary><span class="tr-customizeasu"></span></summary>
-            <div class="layout">
-              <table>
-                <tr>
-                  <td>
-                    <label for="asu-packages" class="tr-extra-packages"></label>
-                  </td>
-                  <td>
-                    <textarea id="asu-packages" class="asu-packages"></textarea>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </details>
         </div>
         <input id="models" type="hidden" />
       </div>

@@ -2,10 +2,8 @@ import {
   $,
   $$,
   append,
-  formatDate,
   hide,
   htmlToElement,
-  setValue,
   show,
 } from "./utils.js";
 import { translate } from "./translation.js";
@@ -167,8 +165,6 @@ export function updateImages(version, mobj, context) {
   const { config, currentDevice, customDevicePackages } = context;
 
   $$("#download-table1 *").forEach((e) => e.remove());
-  $$("#download-links2 *").forEach((e) => e.remove());
-  $$("#download-extras2 *").forEach((e) => e.remove());
 
   if (mobj) {
     if ("asu_image_url" in mobj) {
@@ -189,38 +185,10 @@ export function updateImages(version, mobj, context) {
 
     translate();
 
-    setValue("#image-model", getModelTitles(mobj.titles).join(" / "));
-    setValue("#image-target", mobj.target);
-    setValue("#image-version", mobj.version_number);
-    setValue("#image-code", mobj.version_code);
-    setValue("#image-date", formatDate(mobj.build_at));
-    setValue("#image-folder", mobj.image_folder);
-
-    setValue(
-      "#image-info",
-      (config.info_url || "")
-        .replace("{title}", encodeURI($("#models").value))
-        .replace("{target}", mobj.target)
-        .replace("{id}", mobj.id)
-        .replace("{version}", mobj.version_number)
-    );
-
-    setValue(
-      "#image-link",
-      document.location.href.split("?")[0] +
-        "?version=" +
-        encodeURIComponent(mobj.version_number) +
-        "&target=" +
-        encodeURIComponent(mobj.target) +
-        "&id=" +
-        encodeURIComponent(mobj.id)
-    );
 
     mobj.images.sort((a, b) => a.name.localeCompare(b.name));
 
     const table1 = $("#download-table1");
-    const links2 = $("#download-links2");
-    const extras2 = $("#download-extras2");
 
     for (const image of sortImages(mobj.images)) {
       const link = createLink(mobj, image, mobj.image_folder);
@@ -231,52 +199,7 @@ export function updateImages(version, mobj, context) {
       row.appendChild(extra);
     }
 
-    for (const image of sortImages(mobj.images)) {
-      const link = createLink(mobj, image, mobj.image_folder);
-      const extra = createExtra(image, config);
-
-      links2.appendChild(link);
-      extras2.appendChild(extra);
-
-      hide(extra);
-
-      link.onmouseover = function () {
-        links2.childNodes.forEach((e) =>
-          e.firstChild.classList.remove("download-link-hover")
-        );
-        link.firstChild.classList.add("download-link-hover");
-
-        extras2.childNodes.forEach((e) => hide(e));
-        hide(extra);
-      };
-    }
-
-    if ("manifest" in mobj === false) {
-      $("#asu").open = false;
-      hide("#asu-log");
-      hide("#asu-buildstatus");
-      $("#asu-packages").value = buildAsuPackages(
-        mobj,
-        config,
-        customDevicePackages
-      ).join(" ");
-    }
-
     translate();
-
-    if (isAnyDeviceSelected(currentDevice)) {
-      history.replaceState(
-        null,
-        null,
-        document.location.href.split("?")[0] +
-          "?version=" +
-          encodeURIComponent(mobj.version_number) +
-          "&target=" +
-          encodeURIComponent(mobj.target) +
-          "&id=" +
-          encodeURIComponent(mobj.id)
-      );
-    }
 
     hide("#notfound");
     show("#images");

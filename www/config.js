@@ -8,7 +8,38 @@ var config = {
   asu_url: "https://sysupgrade.openwrt.org",
 
   // Extra packages to include in every build (e.g. custom tools)
-  default_packages: [],
+  default_packages: [
+    "apk-mbedtls",
+    "base-files",
+    "ca-bundle",
+    "dnsmasq",
+    "dropbear",
+    "firewall4",
+    "fstools",
+    "kmod-gpio-button-hotplug",
+    "kmod-leds-gpio",
+    "kmod-mt7603",
+    "kmod-nft-offload",
+    "libc",
+    "libgcc",
+    "libustream-mbedtls",
+    "logd",
+    "mtd",
+    "netifd",
+    "nftables",
+    "odhcp6c",
+    "odhcpd-ipv6only",
+    "ppp",
+    "ppp-mod-pppoe",
+    "swconfig",
+    "uci",
+    "uclient-fetch",
+    "urandom-seed",
+    "urngd",
+    "wpad-mbedtls",
+    "kmod-mt7615e",
+    "kmod-mt7663-firmware-ap"
+  ],
 
   // Supported devices — only these can build firmware
   devices: [
