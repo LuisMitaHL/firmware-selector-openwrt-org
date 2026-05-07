@@ -6,7 +6,6 @@ import {
   htmlToElement,
   show,
 } from "./utils.js";
-import { translate } from "./translation.js";
 
 export function getModelTitles(titles) {
   return titles.map((e) => {
@@ -183,9 +182,6 @@ export function updateImages(version, mobj, context) {
       h3.classList.add("tr-downloads");
     }
 
-    translate();
-
-
     mobj.images.sort((a, b) => a.name.localeCompare(b.name));
 
     const table1 = $("#download-table1");
@@ -198,8 +194,6 @@ export function updateImages(version, mobj, context) {
       row.appendChild(link);
       row.appendChild(extra);
     }
-
-    translate();
 
     hide("#notfound");
     show("#images");

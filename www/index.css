@@ -531,6 +531,28 @@ body {
   background-color: #038fc6;
 }
 
+.advanced-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  border-radius: 0.2em;
+  padding: 0.6em 1em;
+  margin-bottom: 1em;
+  font-size: 0.9em;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  box-shadow: 0em 0.06em 0.3em 0em rgba(0, 0, 0, 0.2),
+    0em 0.125em 0.125em 0em rgba(0, 0, 0, 0.14),
+    0em 0.19em 0.06em -0.125em rgba(0, 0, 0, 0.12);
+  color: #fff;
+  background-color: #555;
+  width: max-content;
+}
+
+.advanced-link:hover {
+  background-color: #444;
+}
+
 /* dark mode form overrides */
 @media (prefers-color-scheme: dark) {
   .form-input,

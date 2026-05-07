@@ -1,5 +1,4 @@
 import { $, show, hide, showAlert } from "./utils.js";
-import { initTranslation } from "./translation.js";
 import { createAsuRequestBuilder } from "./asu.js";
 import { updateImages } from "./images.js";
 
@@ -46,6 +45,18 @@ INSTERT_WIFI_IFACES_HERE
   wifi
 
 echo "All done!"`;
+
+// ---- Cookie helpers ----
+function getCookie(name) {
+  const match = document.cookie.match("(?:^|;\\s*)" + name + "\\s*=\\s*([^;]*)");
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function setCookie(name, value, days) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + expires + "; path=/";
+}
+// ------------------------
 
 function buildUciDefaults(formValues) {
   const wifiName = formValues.wifiName.trim();
@@ -153,6 +164,51 @@ const buildAsuRequest = createAsuRequestBuilder({
   updateImages: wrapUpdateImages,
 });
 
+// ---- Basic/Advanced mode helpers ----
+const BASIC_DEFAULTS = {
+  rootPassword: "openwrteslinux",
+  encryption: "owe",
+  wifiPassword: "12345678",
+  channel2Ghz: "11",
+  channel5Ghz: "149",
+};
+
+function isAdvancedMode() {
+  return getCookie("advanced_mode") === "true";
+}
+
+function setAdvancedMode(enabled) {
+  setCookie("advanced_mode", enabled ? "true" : "false", 365);
+}
+
+function updateAdvancedToggleButton(enabled) {
+  const btn = document.getElementById("advanced-toggle");
+  if (!btn) return;
+  const span = btn.querySelector("span");
+  if (enabled) {
+    span.textContent = "OCULTAR OPCIONES AVANZADAS";
+  } else {
+    span.textContent = "MOSTRAR OPCIONES AVANZADAS";
+  }
+}
+
+function toggleAdvancedVisibility(enabled) {
+  const advancedFields = document.getElementById("advanced-fields");
+  if (!advancedFields) return;
+  if (enabled) {
+    show(advancedFields);
+  } else {
+    hide(advancedFields);
+  }
+}
+
+function applyAdvancedMode() {
+  const enabled = isAdvancedMode();
+  toggleAdvancedVisibility(enabled);
+  updateAdvancedToggleButton(enabled);
+}
+// --------------------------------------
+
 function init() {
   // Populate device dropdown
   const deviceSelect = document.getElementById("device");
@@ -189,7 +245,20 @@ function init() {
   encryptionSelect.addEventListener("change", togglePasswordField);
   togglePasswordField();
 
-  initTranslation();
+  // ---- Advanced mode toggle ----
+  applyAdvancedMode();
+
+  const advancedToggle = document.getElementById("advanced-toggle");
+  if (advancedToggle) {
+    advancedToggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      const newEnabled = !isAdvancedMode();
+      setAdvancedMode(newEnabled);
+      toggleAdvancedVisibility(newEnabled);
+      updateAdvancedToggleButton(newEnabled);
+    });
+  }
+  // -----------------------------
 
   const buildButton = document.getElementById("asu-request-build");
   if (buildButton) {
@@ -207,35 +276,50 @@ function init() {
         return;
       }
 
-      const encryption = document.getElementById("wifi-encryption").value;
-      if (encryption === "wpa2") {
-        const wifiPw = document.getElementById("wifi-password").value.trim();
-        if (wifiPw.length < 8) {
+      let encryption, wifiPassword, rootPassword, channel2Ghz, channel5Ghz;
+
+      if (isAdvancedMode()) {
+        // Read values from the form fields
+        encryption = document.getElementById("wifi-encryption").value;
+        wifiPassword = document.getElementById("wifi-password").value.trim() || "12345678";
+        rootPassword = document.getElementById("root-password").value.trim();
+        channel2Ghz = document.getElementById("channel-2ghz").value;
+        channel5Ghz = document.getElementById("channel-5ghz").value;
+
+        if (encryption === "wpa2") {
+          if (wifiPassword.length < 8) {
+            const bs = document.getElementById("asu-buildstatus");
+            bs.classList.remove("asu-info");
+            bs.classList.add("asu-error");
+            bs.querySelector("span").textContent = "Wi-Fi password must be at least 8 characters";
+            show(bs);
+            return;
+          }
+        }
+
+        if (!rootPassword) {
           const bs = document.getElementById("asu-buildstatus");
           bs.classList.remove("asu-info");
           bs.classList.add("asu-error");
-          bs.querySelector("span").textContent = "Wi-Fi password must be at least 8 characters";
+          bs.querySelector("span").textContent = "Root password is required";
           show(bs);
           return;
         }
-      }
-
-      const rootPassword = document.getElementById("root-password").value.trim();
-      if (!rootPassword) {
-        const bs = document.getElementById("asu-buildstatus");
-        bs.classList.remove("asu-info");
-        bs.classList.add("asu-error");
-        bs.querySelector("span").textContent = "Root password is required";
-        show(bs);
-        return;
+      } else {
+        // Use hardcoded defaults
+        encryption = BASIC_DEFAULTS.encryption;
+        wifiPassword = BASIC_DEFAULTS.wifiPassword;
+        rootPassword = BASIC_DEFAULTS.rootPassword;
+        channel2Ghz = BASIC_DEFAULTS.channel2Ghz;
+        channel5Ghz = BASIC_DEFAULTS.channel5Ghz;
       }
 
       const formValues = {
         wifiName: wifiName,
         encryption: encryption,
-        channel2Ghz: document.getElementById("channel-2ghz").value,
-        channel5Ghz: document.getElementById("channel-5ghz").value,
-        wifiPassword: document.getElementById("wifi-password").value.trim() || "12345678",
+        channel2Ghz: channel2Ghz,
+        channel5Ghz: channel5Ghz,
+        wifiPassword: wifiPassword,
         rootPassword: rootPassword,
       };
 

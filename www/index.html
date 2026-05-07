@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>looper-aurora</title>
+    <title>RED</title>
     <link rel="icon" href="favicon.ico" />
     <link rel="stylesheet" href="index.css" />
     <script src="config.js"></script>
@@ -25,9 +25,11 @@
 
     <div class="container">
       <div>
-        <h2>Instalador</h2>
+        <h2>Router para Emergencias y Desastres (REDes)</h2>
         <p>Configura cómo quieres el instalador para tu router.</p>
         <p>Nota que puedes dejar los valores por defecto sin problemas.</p>
+
+        <a href="#" id="advanced-toggle" class="advanced-link"><span>MOSTRAR OPCIONES AVANZADAS</span></a>
 
         <div class="form-group">
           <label for="device" class="form-label">Modelo de Router</label>
@@ -35,61 +37,63 @@
         </div>
 
         <div class="form-group">
-          <label for="root-password" class="form-label">Contraseña de administración</label>
-          <input type="text" id="root-password" class="form-input" value="openwrteslinux" />
-        </div>
-
-        <div class="form-group">
-          <label for="wifi-name" class="form-label">Nombre del Wi-Fi</label>
+          <label for="wifi-name" class="form-label">Nombre de la red Wi-Fi</label>
           <input type="text" id="wifi-name" class="form-input" value="Red Libre" />
         </div>
 
-        <div class="form-group">
-          <label for="wifi-encryption" class="form-label">Cifrado Wi-Fi</label>
-          <select id="wifi-encryption" class="form-select">
-            <option value="wpa2">Contraseña</option>
-            <option value="open">Red abierta</option>
-            <option value="owe" selected>Red abierta protegida</option>
-          </select>
-        </div>
+        <div id="advanced-fields">
+          <div class="form-group">
+            <label for="root-password" class="form-label">Contraseña de administración</label>
+            <input type="text" id="root-password" class="form-input" value="openwrteslinux" />
+          </div>
 
-        <div class="form-group" id="wifi-password-group">
-          <label for="wifi-password" class="form-label">Contraseña Wi-Fi</label>
-          <input type="text" id="wifi-password" class="form-input" value="12345678" />
-        </div>
+          <div class="form-group">
+            <label for="wifi-encryption" class="form-label">Cifrado Wi-Fi</label>
+            <select id="wifi-encryption" class="form-select">
+              <option value="wpa2">Contraseña</option>
+              <option value="open">Red abierta</option>
+              <option value="owe" selected>Red abierta protegida</option>
+            </select>
+          </div>
 
-        <div class="form-group">
-          <label for="channel-2ghz" class="form-label">Canal 2.4 GHz</label>
-          <select id="channel-2ghz" class="form-select">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11" selected>11</option>
-            <option value="12">12</option>
-            <option value="13">13</option>
-          </select>
-        </div>
+          <div class="form-group" id="wifi-password-group">
+            <label for="wifi-password" class="form-label">Contraseña Wi-Fi</label>
+            <input type="text" id="wifi-password" class="form-input" value="12345678" />
+          </div>
 
-        <div class="form-group">
-          <label for="channel-5ghz" class="form-label">Canal 5 GHz</label>
-          <select id="channel-5ghz" class="form-select">
-            <option value="36">36</option>
-            <option value="40">40</option>
-            <option value="44">44</option>
-            <option value="48">48</option>
-            <option value="149" selected>149</option>
-            <option value="153">153</option>
-            <option value="157">157</option>
-            <option value="161">161</option>
-            <option value="165">165</option>
-          </select>
+          <div class="form-group">
+            <label for="channel-2ghz" class="form-label">Canal 2.4 GHz</label>
+            <select id="channel-2ghz" class="form-select">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11" selected>11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="channel-5ghz" class="form-label">Canal 5 GHz</label>
+            <select id="channel-5ghz" class="form-select">
+              <option value="36">36</option>
+              <option value="40">40</option>
+              <option value="44">44</option>
+              <option value="48">48</option>
+              <option value="149" selected>149</option>
+              <option value="153">153</option>
+              <option value="157">157</option>
+              <option value="161">161</option>
+              <option value="165">165</option>
+            </select>
+          </div>
         </div>
 
         <div id="asu-buildstatus" class="hide">
