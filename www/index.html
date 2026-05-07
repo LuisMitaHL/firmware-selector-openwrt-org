@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>OpenWrt Firmware Builder</title>
+    <title>looper-aurora</title>
     <link rel="icon" href="favicon.ico" />
     <link rel="stylesheet" href="index.css" />
     <script src="config.js"></script>
@@ -15,16 +15,9 @@
     <header>
       <div>
         <a href="#">
-          <img src="logo.svg" width="180" alt="Logo" />
+          <img src="logo.png" width="180" alt="Logo" />
         </a>
         <div style="flex-grow: 1"></div>
-        <div>
-          <select id="languages-select">
-            <option value="en">English</option>
-            <option value="es">Español (Spanish)</option>
-          </select>
-          <button id="languages-button"></button>
-        </div>
       </div>
     </header>
 
@@ -32,8 +25,8 @@
 
     <div class="container">
       <div>
-        <h2>Generador de Firmware Pasankalla</h2>
-        <p>Configura cómo quieres tu firmware.</p>
+        <h2>Instalador</h2>
+        <p>Configura cómo quieres el instalador para tu router.</p>
         <p>Nota que puedes dejar los valores por defecto sin problemas.</p>
 
         <div class="form-group">
@@ -42,31 +35,31 @@
         </div>
 
         <div class="form-group">
-          <label for="root-password" class="form-label">Root Password</label>
+          <label for="root-password" class="form-label">Contraseña de administración</label>
           <input type="text" id="root-password" class="form-input" value="openwrteslinux" />
         </div>
 
         <div class="form-group">
-          <label for="wifi-name" class="form-label">Wi-Fi Name (SSID)</label>
-          <input type="text" id="wifi-name" class="form-input" value="Pasankalla" />
+          <label for="wifi-name" class="form-label">Nombre del Wi-Fi</label>
+          <input type="text" id="wifi-name" class="form-input" value="Red Libre" />
         </div>
 
         <div class="form-group">
-          <label for="wifi-encryption" class="form-label">Wi-Fi Encryption</label>
+          <label for="wifi-encryption" class="form-label">Cifrado Wi-Fi</label>
           <select id="wifi-encryption" class="form-select">
-            <option value="wpa2">WPA2</option>
-            <option value="open">Open</option>
-            <option value="owe" selected>Enhanced Open</option>
+            <option value="wpa2">Contraseña</option>
+            <option value="open">Red abierta</option>
+            <option value="owe" selected>Red abierta protegida</option>
           </select>
         </div>
 
         <div class="form-group" id="wifi-password-group">
-          <label for="wifi-password" class="form-label">Wi-Fi Password (min 8 chars)</label>
+          <label for="wifi-password" class="form-label">Contraseña Wi-Fi</label>
           <input type="text" id="wifi-password" class="form-input" value="12345678" />
         </div>
 
         <div class="form-group">
-          <label for="channel-2ghz" class="form-label">2.4 GHz Channel</label>
+          <label for="channel-2ghz" class="form-label">Canal 2.4 GHz</label>
           <select id="channel-2ghz" class="form-select">
             <option value="1">1</option>
             <option value="2">2</option>
@@ -85,7 +78,7 @@
         </div>
 
         <div class="form-group">
-          <label for="channel-5ghz" class="form-label">5 GHz Channel</label>
+          <label for="channel-5ghz" class="form-label">Canal 5 GHz</label>
           <select id="channel-5ghz" class="form-select">
             <option value="36">36</option>
             <option value="40">40</option>
@@ -114,7 +107,7 @@
         </div>
 
         <a href="#" id="asu-request-build" class="build-link">
-          <span></span><span>PREPARAR FIRMWARE</span>
+          <span></span><span>PREPARAR INSTALADOR</span>
         </a>
 
         <!-- Download / images section (shown after build) -->

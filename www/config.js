@@ -55,7 +55,7 @@ var config = {
       target: "mediatek/filogic",
     },
     {
-      title: "Confiabits MT7621 v1",
+      title: "LaOtraRed Aurora v1",
       id: "confiabits_mt7621-v1",
       target: "ramips/mt7621",
     },
