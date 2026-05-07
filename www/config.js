@@ -37,6 +37,7 @@ var config = {
     "urandom-seed",
     "urngd",
     "wpad-mbedtls",
+    "hostapd-utils",
     "kmod-mt7615e",
     "kmod-mt7663-firmware-ap"
   ],
