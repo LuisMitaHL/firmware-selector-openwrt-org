@@ -4,15 +4,15 @@ import { updateImages } from "./images.js";
 
 const config = window.config;
 const progress = {
-  "tr-init": 5,
-  "tr-queued": 10,
-  "tr-started": 12,
-  "tr-container-setup": 15,
-  "tr-download-imagebuilder": 20,
-  "tr-validate-manifest": 30,
-  "tr-unpack-imagebuilder": 40,
-  "tr-calculate-packages-hash": 60,
-  "tr-building-image": 80,
+  "init": 5,
+  "queued": 10,
+  "started": 12,
+  "container-setup": 15,
+  "download-imagebuilder": 20,
+  "validate-manifest": 30,
+  "unpack-imagebuilder": 40,
+  "calculate-packages-hash": 60,
+  "building-image": 80,
 };
 
 const defaultUciDefaults = `exec >/tmp/setup.log 2>&1
@@ -23,7 +23,7 @@ MAC_ETH0=$(cat /sys/class/net/eth0/address)
 ULTIMOS3=$(echo "$MAC_ETH0" | awk -F: '{print $(NF-2)$(NF-1)$NF}')
 echo "Ultimos 3: $ULTIMOS3"
 
-uci set system.@system[0].hostname="OpenWrt-$ULTIMOS3"
+uci set system.@system[0].hostname="REDesNat-$ULTIMOS3"
 uci set system.@system[0].zonename='America/La Paz'
 uci set system.@system[0].timezone='<-04>4'
 uci set firewall.@defaults[0].input='ACCEPT'
@@ -33,7 +33,7 @@ uci commit firewall
   uci set wireless.@wifi-device[0].disabled='0'
   uci set wireless.@wifi-device[0].country='BO'
   uci set wireless.@wifi-device[0].htmode='HT20'
-  uci set wireless.@wifi-device[0].txpower='17'
+  uci set wireless.@wifi-device[0].txpower='15'
 INSTERT_2GHZ_CHANNEL_HERE
   uci set wireless.@wifi-device[1].disabled='0'
   uci set wireless.@wifi-device[1].country='BO'
@@ -86,15 +86,60 @@ function buildUciDefaults(formValues) {
 
   // Insert SQM
   uci = uci.replace('INSTERT_SQM_HERE',
+    'DL=' + downloadSpeed + '\n' +
+    'UL=' + uploadSpeed + '\n' +
+    '\n' +
+    'while uci -q delete sqm.@queue[0]; do :; done\n' +
+    '\n' +
     'WAN_DEVICE=$(uci -q get network.wan.device)\n' +
     '[ -z "$WAN_DEVICE" ] && WAN_DEVICE=$(uci -q get network.wan.ifname)\n' +
     'if [ -n "$WAN_DEVICE" ]; then\n' +
-    '  uci set sqm.@queue[0].enabled=\'1\'\n' +
-    '  uci set sqm.@queue[0].interface="$WAN_DEVICE"\n' +
-    '  uci set sqm.@queue[0].download=\'' + downloadSpeed + '\'\n' +
-    '  uci set sqm.@queue[0].upload=\'' + uploadSpeed + '\'\n' +
-    '  uci commit sqm\n' +
-    'fi');
+    '  uci add sqm queue\n' +
+    '  uci set sqm.@queue[-1].enabled=\'1\'\n' +
+    '  uci set sqm.@queue[-1].interface="$WAN_DEVICE"\n' +
+    '  uci set sqm.@queue[-1].qdisc=\'cake\'\n' +
+    '  uci set sqm.@queue[-1].script=\'piece_of_cake.qos\'\n' +
+    '  uci set sqm.@queue[-1].download="$((DL * 95 / 100))"\n' +
+    '  uci set sqm.@queue[-1].upload="$((UL * 95 / 100))"\n' +
+    '  uci set sqm.@queue[-1].debug_logging=\'0\'\n' +
+    '  uci set sqm.@queue[-1].verbosity=\'5\'\n' +
+    '  uci set sqm.@queue[-1].linklayer=\'none\'\n' +
+    '  uci set sqm.@queue[-1].qdisc_advanced=\'1\'\n' +
+    '  uci set sqm.@queue[-1].squash_dscp=\'1\'\n' +
+    '  uci set sqm.@queue[-1].squash_ingress=\'1\'\n' +
+    '  uci set sqm.@queue[-1].ingress_ecn=\'ECN\'\n' +
+    '  uci set sqm.@queue[-1].egress_ecn=\'NOECN\'\n' +
+    '  uci set sqm.@queue[-1].qdisc_really_really_advanced=\'1\'\n' +
+    '  uci set sqm.@queue[-1].iqdisc_opts=\'dual-dsthost ingress nat\'\n' +
+    '  uci set sqm.@queue[-1].eqdisc_opts=\'dual-srchost\'\n' +
+
+    'fi\n' +
+    '\n' +
+    'DL0=$((DL * 90 / 100))\n' +
+    'UL0=$((UL * 90 / 100))\n' +
+    '[ "$DL0" -gt 15360 ] && DL0=15360\n' +
+    '[ "$UL0" -gt 15360 ] && UL0=15360\n' +
+    'uci add sqm queue\n' +
+    'uci set sqm.@queue[-1].enabled=\'1\'\n' +
+    'uci set sqm.@queue[-1].interface=\'phy0-ap0\'\n' +
+    'uci set sqm.@queue[-1].qdisc=\'fq_codel\'\n' +
+    'uci set sqm.@queue[-1].script=\'simplest_tbf.qos\'\n' +
+    'uci set sqm.@queue[-1].download="$DL0"\n' +
+    'uci set sqm.@queue[-1].upload="$UL0"\n' +
+    '\n' +
+    'DL1=$((DL * 90 / 100))\n' +
+    'UL1=$((UL * 90 / 100))\n' +
+    '[ "$DL1" -gt 30720 ] && DL1=30720\n' +
+    '[ "$UL1" -gt 30720 ] && UL1=30720\n' +
+    'uci add sqm queue\n' +
+    'uci set sqm.@queue[-1].enabled=\'1\'\n' +
+    'uci set sqm.@queue[-1].interface=\'phy1-ap0\'\n' +
+    'uci set sqm.@queue[-1].qdisc=\'fq_codel\'\n' +
+    'uci set sqm.@queue[-1].script=\'simplest_tbf.qos\'\n' +
+    'uci set sqm.@queue[-1].download="$DL1"\n' +
+    'uci set sqm.@queue[-1].upload="$UL1"\n' +
+    '\n' +
+    'uci commit sqm');
 
   // Insert wifi ifaces depending on encryption mode
   if (encryption === 'wpa2') {
@@ -102,12 +147,12 @@ function buildUciDefaults(formValues) {
     uci = uci.replace('INSTERT_WIFI_IFACES_HERE',
       "  uci set wireless.@wifi-iface[0].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[0].encryption='psk2'\n" +
-      "  uci set wireless.@wifi-iface[0].ssid=\"" + wifiName + "-Lento-$ULTIMOS3\"\n" +
+      "  uci set wireless.@wifi-iface[0].ssid=\"" + wifiName + "\"\n" +
       "  uci set wireless.@wifi-iface[0].key=\"" + key + "\"\n" +
       "  uci set wireless.@wifi-iface[0].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[1].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[1].encryption='psk2'\n" +
-      "  uci set wireless.@wifi-iface[1].ssid=\"" + wifiName + "-Rapido-$ULTIMOS3\"\n" +
+      "  uci set wireless.@wifi-iface[1].ssid=\"" + wifiName + "\"\n" +
       "  uci set wireless.@wifi-iface[1].key=\"" + key + "\"\n" +
       "  uci set wireless.@wifi-iface[1].dtim_period=\"3\"");
   } else if (encryption === 'owe') {
@@ -116,28 +161,28 @@ function buildUciDefaults(formValues) {
       // 2.4GHz: iface[0] OWE hidden, iface[1] open transition hidden
       "  uci set wireless.@wifi-iface[0].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[0].encryption='owe'\n" +
-      "  uci set wireless.@wifi-iface[0].ssid=\"" + wifiName + "-Lento-$ULTIMOS3\"\n" +
+      "  uci set wireless.@wifi-iface[0].ssid=\"" + wifiName + " WPA3\"\n" +
       "  uci set wireless.@wifi-iface[0].hidden='1'\n" +
       "  uci set wireless.@wifi-iface[0].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[0].ieee80211w='2'\n" +
       // transition iface for 2.4GHz
       "  uci set wireless.@wifi-iface[1].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[1].encryption='none'\n" +
-      "  uci set wireless.@wifi-iface[1].ssid=\"" + wifiName + "-Lento-$ULTIMOS3\"\n" +
+      "  uci set wireless.@wifi-iface[1].ssid=\"" + wifiName + "\"\n" +
       "  uci set wireless.@wifi-iface[1].hidden='1'\n" +
       "  uci set wireless.@wifi-iface[1].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[1].ieee80211w='2'\n" +
       // 5GHz: iface[2] OWE hidden, iface[3] open transition hidden
       "  uci set wireless.@wifi-iface[2].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[2].encryption='owe'\n" +
-      "  uci set wireless.@wifi-iface[2].ssid=\"" + wifiName + "-Rapido-$ULTIMOS3\"\n" +
+      "  uci set wireless.@wifi-iface[2].ssid=\"" + wifiName + " WPA3\"\n" +
       "  uci set wireless.@wifi-iface[2].hidden='1'\n" +
       "  uci set wireless.@wifi-iface[2].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[2].ieee80211w='2'\n" +
       // transition iface for 5GHz
       "  uci set wireless.@wifi-iface[3].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[3].encryption='none'\n" +
-      "  uci set wireless.@wifi-iface[3].ssid=\"" + wifiName + "-Rapido-$ULTIMOS3\"\n" +
+      "  uci set wireless.@wifi-iface[3].ssid=\"" + wifiName + "\"\n" +
       "  uci set wireless.@wifi-iface[3].hidden='1'\n" +
       "  uci set wireless.@wifi-iface[3].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[3].ieee80211w='2'");
@@ -146,11 +191,11 @@ function buildUciDefaults(formValues) {
     uci = uci.replace('INSTERT_WIFI_IFACES_HERE',
       "  uci set wireless.@wifi-iface[0].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[0].encryption='none'\n" +
-      "  uci set wireless.@wifi-iface[0].ssid=\"" + wifiName + "-Lento-$ULTIMOS3\"\n" +
+      "  uci set wireless.@wifi-iface[0].ssid=\"" + wifiName + "\"\n" +
       "  uci set wireless.@wifi-iface[0].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[1].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[1].encryption='none'\n" +
-      "  uci set wireless.@wifi-iface[1].ssid=\"" + wifiName + "-Rapido-$ULTIMOS3\"\n" +
+      "  uci set wireless.@wifi-iface[1].ssid=\"" + wifiName + "\"\n" +
       "  uci set wireless.@wifi-iface[1].dtim_period=\"3\"");
   }
 
@@ -337,7 +382,7 @@ function init() {
         const bs = document.getElementById("asu-buildstatus");
         bs.classList.remove("asu-info");
         bs.classList.add("asu-error");
-        bs.querySelector("span").textContent = "Wi-Fi name is required";
+        bs.querySelector("span").textContent = "El nombre de la red Wi-Fi es requerido";
         show(bs);
         return;
       }
@@ -360,7 +405,7 @@ function init() {
             const bs = document.getElementById("asu-buildstatus");
             bs.classList.remove("asu-info");
             bs.classList.add("asu-error");
-            bs.querySelector("span").textContent = "Wi-Fi password must be at least 8 characters";
+            bs.querySelector("span").textContent = "La contraseña Wi-Fi debe tener al menos 8 caracteres";
             show(bs);
             return;
           }
@@ -370,7 +415,7 @@ function init() {
           const bs = document.getElementById("asu-buildstatus");
           bs.classList.remove("asu-info");
           bs.classList.add("asu-error");
-          bs.querySelector("span").textContent = "Root password is required";
+          bs.querySelector("span").textContent = "La contraseña de administración es requerida";
           show(bs);
           return;
         }

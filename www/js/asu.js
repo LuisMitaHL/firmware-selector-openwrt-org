@@ -1,5 +1,18 @@
 import { $, $$, hide, show, split } from "./utils.js";
 
+const statusMessages = {
+  "init": "Inicializando...",
+  "queued": "En cola...",
+  "started": "Iniciado...",
+  "container-setup": "Preparando contenedor...",
+  "download-imagebuilder": "Descargando imagebuilder...",
+  "validate-manifest": "Validando manifiesto...",
+  "build-packages": "Preparando paquetes...",
+  "calculate-packages-hash": "Calculando hash de paquetes...",
+  "unpack-imagebuilder": "Extrayendo imagebuilder...",
+  "building-image": "Construyendo imagen...",
+};
+
 export function createAsuRequestBuilder(context) {
   const { config, progress, ofsVersion, getCurrentDevice, updateImages } =
     context;
@@ -56,7 +69,7 @@ export function createAsuRequestBuilder(context) {
         progress[message] || ""
       }></progress>`;
     }
-    status += `<span>${message}</span>`;
+    status += `<span>${statusMessages[message] || message}</span>`;
     $("#asu-buildstatus span").innerHTML = status;
   }
 
@@ -127,7 +140,7 @@ export function createAsuRequestBuilder(context) {
       .then((response) => {
         switch (response.status) {
           case 200:
-            showStatus("Build successful!", false, "info");
+            showStatus("¡Compilación completa!", false, "info");
             response.json().then((mobj) => {
               if ("stderr" in mobj) {
                 if ($("#asu-stderr")) $("#asu-stderr").innerText = mobj.stderr;
@@ -136,7 +149,7 @@ export function createAsuRequestBuilder(context) {
               } else {
                 hide("#asu-log");
               }
-              showStatus("Build successful!", false, "info");
+              showStatus("¡Compilación completa!", false, "info");
               mobj.id = currentDevice.id;
               mobj.asu_image_url = config.asu_url + "/store/" + mobj.bin_dir;
               updateImages(mobj.version_number, mobj);
