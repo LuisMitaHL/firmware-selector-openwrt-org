@@ -27,6 +27,7 @@ uci set system.@system[0].hostname="REDesNat-$ULTIMOS3"
 uci set system.@system[0].zonename='America/La Paz'
 uci set system.@system[0].timezone='<-04>4'
 uci set firewall.@defaults[0].input='ACCEPT'
+uci set firewall.@defaults[0].flow_offloading='1'
 uci set firewall.@zone[1].input='ACCEPT'
 uci commit system
 uci commit firewall
