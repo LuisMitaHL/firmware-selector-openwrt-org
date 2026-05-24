@@ -94,6 +94,16 @@
               <option value="165">165</option>
             </select>
           </div>
+
+          <div class="form-group">
+            <label for="download-speed" class="form-label">Descarga (Kbps)</label>
+            <input type="number" id="download-speed" class="form-input" value="30000" min="0" />
+          </div>
+
+          <div class="form-group">
+            <label for="upload-speed" class="form-label">Subida (Kbps)</label>
+            <input type="number" id="upload-speed" class="form-input" value="30000" min="0" />
+          </div>
         </div>
 
         <div id="asu-buildstatus" class="hide">
@@ -113,6 +123,9 @@
         <a href="#" id="asu-request-build" class="build-link">
           <span></span><span>PREPARAR INSTALADOR</span>
         </a>
+
+        <a href="#" id="asu-show-defaults" class="debug-link">Configuración</a>
+        <pre id="uci-debug-output" class="hide"></pre>
 
         <!-- Download / images section (shown after build) -->
         <div id="notfound" class="hide"><h3 class="tr-notfound"></h3></div>

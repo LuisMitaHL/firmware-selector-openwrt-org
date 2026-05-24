@@ -44,6 +44,8 @@ INSTERT_WIFI_IFACES_HERE
   uci commit wireless
   wifi
 
+INSTERT_SQM_HERE
+
 echo "All done!"`;
 
 // ---- Cookie helpers ----
@@ -65,6 +67,8 @@ function buildUciDefaults(formValues) {
   const channel5Ghz = formValues.channel5Ghz;
   const wifiPassword = formValues.wifiPassword;
   const rootPassword = formValues.rootPassword.trim();
+  const downloadSpeed = formValues.downloadSpeed || "30000";
+  const uploadSpeed = formValues.uploadSpeed || "30000";
 
   let uci = defaultUciDefaults;
 
@@ -79,6 +83,18 @@ function buildUciDefaults(formValues) {
     '  uci set wireless.@wifi-device[0].channel=\'' + channel2Ghz + '\'');
   uci = uci.replace('INSTERT_5GHZ_CHANNEL_HERE',
     '  uci set wireless.@wifi-device[1].channel=\'' + channel5Ghz + '\'');
+
+  // Insert SQM
+  uci = uci.replace('INSTERT_SQM_HERE',
+    'WAN_DEVICE=$(uci -q get network.wan.device)\n' +
+    '[ -z "$WAN_DEVICE" ] && WAN_DEVICE=$(uci -q get network.wan.ifname)\n' +
+    'if [ -n "$WAN_DEVICE" ]; then\n' +
+    '  uci set sqm.@queue[0].enabled=\'1\'\n' +
+    '  uci set sqm.@queue[0].interface="$WAN_DEVICE"\n' +
+    '  uci set sqm.@queue[0].download=\'' + downloadSpeed + '\'\n' +
+    '  uci set sqm.@queue[0].upload=\'' + uploadSpeed + '\'\n' +
+    '  uci commit sqm\n' +
+    'fi');
 
   // Insert wifi ifaces depending on encryption mode
   if (encryption === 'wpa2') {
@@ -171,6 +187,8 @@ const BASIC_DEFAULTS = {
   wifiPassword: "12345678",
   channel2Ghz: "11",
   channel5Ghz: "149",
+  downloadSpeed: "30000",
+  uploadSpeed: "30000",
 };
 
 function isAdvancedMode() {
@@ -260,6 +278,54 @@ function init() {
   }
   // -----------------------------
 
+  // ---- Debug: show generated uci-defaults ----
+  const debugLink = document.getElementById("asu-show-defaults");
+  if (debugLink) {
+    debugLink.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      const wifiName = document.getElementById("wifi-name").value.trim();
+
+      let encryption, wifiPassword, rootPassword, channel2Ghz, channel5Ghz;
+      let downloadSpeed, uploadSpeed;
+
+      if (isAdvancedMode()) {
+        encryption = document.getElementById("wifi-encryption").value;
+        wifiPassword = document.getElementById("wifi-password").value.trim() || "12345678";
+        rootPassword = document.getElementById("root-password").value.trim();
+        channel2Ghz = document.getElementById("channel-2ghz").value;
+        channel5Ghz = document.getElementById("channel-5ghz").value;
+        downloadSpeed = document.getElementById("download-speed").value.trim() || "30000";
+        uploadSpeed = document.getElementById("upload-speed").value.trim() || "30000";
+      } else {
+        encryption = BASIC_DEFAULTS.encryption;
+        wifiPassword = BASIC_DEFAULTS.wifiPassword;
+        rootPassword = BASIC_DEFAULTS.rootPassword;
+        channel2Ghz = BASIC_DEFAULTS.channel2Ghz;
+        channel5Ghz = BASIC_DEFAULTS.channel5Ghz;
+        downloadSpeed = BASIC_DEFAULTS.downloadSpeed;
+        uploadSpeed = BASIC_DEFAULTS.uploadSpeed;
+      }
+
+      const formValues = {
+        wifiName: wifiName,
+        encryption: encryption,
+        channel2Ghz: channel2Ghz,
+        channel5Ghz: channel5Ghz,
+        wifiPassword: wifiPassword,
+        rootPassword: rootPassword,
+        downloadSpeed: downloadSpeed,
+        uploadSpeed: uploadSpeed,
+      };
+
+      const defaults = buildUciDefaults(formValues);
+      const output = document.getElementById("uci-debug-output");
+      output.textContent = defaults;
+      show(output);
+    });
+  }
+  // --------------------------------------------
+
   const buildButton = document.getElementById("asu-request-build");
   if (buildButton) {
     buildButton.addEventListener("click", function (e) {
@@ -277,6 +343,7 @@ function init() {
       }
 
       let encryption, wifiPassword, rootPassword, channel2Ghz, channel5Ghz;
+      let downloadSpeed, uploadSpeed;
 
       if (isAdvancedMode()) {
         // Read values from the form fields
@@ -285,6 +352,8 @@ function init() {
         rootPassword = document.getElementById("root-password").value.trim();
         channel2Ghz = document.getElementById("channel-2ghz").value;
         channel5Ghz = document.getElementById("channel-5ghz").value;
+        downloadSpeed = document.getElementById("download-speed").value.trim() || "30000";
+        uploadSpeed = document.getElementById("upload-speed").value.trim() || "30000";
 
         if (encryption === "wpa2") {
           if (wifiPassword.length < 8) {
@@ -312,6 +381,8 @@ function init() {
         rootPassword = BASIC_DEFAULTS.rootPassword;
         channel2Ghz = BASIC_DEFAULTS.channel2Ghz;
         channel5Ghz = BASIC_DEFAULTS.channel5Ghz;
+        downloadSpeed = BASIC_DEFAULTS.downloadSpeed;
+        uploadSpeed = BASIC_DEFAULTS.uploadSpeed;
       }
 
       const formValues = {
@@ -321,6 +392,8 @@ function init() {
         channel5Ghz: channel5Ghz,
         wifiPassword: wifiPassword,
         rootPassword: rootPassword,
+        downloadSpeed: downloadSpeed,
+        uploadSpeed: uploadSpeed,
       };
 
       const defaults = buildUciDefaults(formValues);

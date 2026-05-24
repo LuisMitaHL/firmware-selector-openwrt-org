@@ -39,7 +39,8 @@ var config = {
     "wpad-mbedtls",
     "hostapd-utils",
     "kmod-mt7615e",
-    "kmod-mt7663-firmware-ap"
+    "kmod-mt7663-firmware-ap",
+    "sqm-scripts"
   ],
 
   // Supported devices — only these can build firmware
