@@ -40,7 +40,10 @@ var config = {
     "hostapd-utils",
     "kmod-mt7615e",
     "kmod-mt7663-firmware-ap",
-    "sqm-scripts"
+    "sqm-scripts",
+    "luci",
+    "luci-app-sqm",
+    "coreutils-base64"
   ],
 
   // Supported devices — only these can build firmware
