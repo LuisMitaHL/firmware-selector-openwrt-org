@@ -2,7 +2,7 @@
 
 var config = {
   // Hardcoded OpenWrt version
-  version: "25.12.2",
+  version: "25.12.4",
 
   // Attended Sysupgrade Server (official instance)
   asu_url: "https://sysupgrade.openwrt.org",
