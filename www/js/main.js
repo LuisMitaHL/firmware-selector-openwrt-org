@@ -42,7 +42,7 @@ INSTERT_2GHZ_CHANNEL_HERE
   uci set wireless.@wifi-device[1].disabled='0'
   uci set wireless.@wifi-device[1].country='BO'
 INSTERT_5GHZ_CHANNEL_HERE
-  uci set wireless.@wifi-device[1].htmode='VHT80'
+  uci set wireless.@wifi-device[1].htmode='VHT40'
   uci set wireless.@wifi-device[1].txpower='20'
 INSTERT_WIFI_IFACES_HERE
   uci commit wireless
