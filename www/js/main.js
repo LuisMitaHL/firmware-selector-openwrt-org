@@ -37,7 +37,7 @@ uci commit dhcp
   uci set wireless.@wifi-device[0].disabled='0'
   uci set wireless.@wifi-device[0].country='BO'
   uci set wireless.@wifi-device[0].htmode='HT20'
-  uci set wireless.@wifi-device[0].txpower='15'
+  uci set wireless.@wifi-device[0].txpower='18'
 INSTERT_2GHZ_CHANNEL_HERE
   uci set wireless.@wifi-device[1].disabled='0'
   uci set wireless.@wifi-device[1].country='BO'
@@ -47,6 +47,8 @@ INSTERT_5GHZ_CHANNEL_HERE
 INSTERT_WIFI_IFACES_HERE
   uci commit wireless
   wifi
+  sleep 20
+  /etc/init.d/sqm restart
 
 INSTERT_SQM_HERE
 
@@ -71,8 +73,8 @@ function buildUciDefaults(formValues) {
   const channel5Ghz = formValues.channel5Ghz;
   const wifiPassword = formValues.wifiPassword;
   const rootPassword = formValues.rootPassword.trim();
-  const downloadSpeed = formValues.downloadSpeed || "30000";
-  const uploadSpeed = formValues.uploadSpeed || "30000";
+  const downloadSpeed = formValues.downloadSpeed || "30720";
+  const uploadSpeed = formValues.uploadSpeed || "30720";
 
   let uci = defaultUciDefaults;
 
@@ -133,8 +135,8 @@ function buildUciDefaults(formValues) {
     '\n' +
     'DL1=$((DL * 90 / 100))\n' +
     'UL1=$((UL * 90 / 100))\n' +
-    '[ "$DL1" -gt 30720 ] && DL1=30720\n' +
-    '[ "$UL1" -gt 30720 ] && UL1=30720\n' +
+    '[ "$DL1" -gt 20480 ] && DL1=20480\n' +
+    '[ "$UL1" -gt 20480 ] && UL1=20480\n' +
     'uci add sqm queue\n' +
     'uci set sqm.@queue[-1].enabled=\'1\'\n' +
     'uci set sqm.@queue[-1].interface=\'phy1-ap0\'\n' +
@@ -157,6 +159,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[0].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[0].bridge_isolate='1'\n" +
       "  uci set wireless.@wifi-iface[0].max_inactivity='120'\n" +
+      "  uci set wireless.@wifi-iface[0].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[1].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[1].encryption='psk2'\n" +
       "  uci set wireless.@wifi-iface[1].ssid=\"" + wifiName + "\"\n" +
@@ -164,6 +167,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[1].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[1].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[1].bridge_isolate='1'\n" +
+      "  uci set wireless.@wifi-iface[1].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[1].max_inactivity='120'");
   } else if (encryption === 'wpa2-pmf') {
     const key = wifiPassword.trim() || "12345678";
@@ -176,6 +180,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[0].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[0].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[0].bridge_isolate='1'\n" +
+      "  uci set wireless.@wifi-iface[0].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[0].max_inactivity='120'\n" +
       "  uci set wireless.@wifi-iface[1].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[1].encryption='psk2'\n" +
@@ -185,6 +190,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[1].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[1].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[1].bridge_isolate='1'\n" +
+      "  uci set wireless.@wifi-iface[1].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[1].max_inactivity='120'");
   } else if (encryption === 'wpa3') {
     const key = wifiPassword.trim() || "12345678";
@@ -197,6 +203,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[0].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[0].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[0].bridge_isolate='1'\n" +
+      "  uci set wireless.@wifi-iface[0].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[0].max_inactivity='120'\n" +
       "  uci set wireless.@wifi-iface[1].disabled='0'\n" +
       "  uci set wireless.@wifi-iface[1].encryption='sae'\n" +
@@ -206,6 +213,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[1].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[1].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[1].bridge_isolate='1'\n" +
+      "  uci set wireless.@wifi-iface[1].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[1].max_inactivity='120'");
   } else if (encryption === 'owe') {
     // Enhanced Open: OWE + open transition for each radio = 4 ifaces total
@@ -219,6 +227,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[0].ieee80211w='2'\n" +
       "  uci set wireless.@wifi-iface[0].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[0].bridge_isolate='1'\n" +
+      "  uci set wireless.@wifi-iface[0].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[0].max_inactivity='120'\n" +
       // transition iface for 2.4GHz
       "  uci set wireless.@wifi-iface[1].disabled='0'\n" +
@@ -229,6 +238,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[1].ieee80211w='2'\n" +
       "  uci set wireless.@wifi-iface[1].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[1].bridge_isolate='1'\n" +
+      "  uci set wireless.@wifi-iface[1].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[1].max_inactivity='120'\n" +
       // 5GHz: iface[2] OWE hidden, iface[3] open transition hidden
       "  uci set wireless.@wifi-iface[2].disabled='0'\n" +
@@ -239,6 +249,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[2].ieee80211w='2'\n" +
       "  uci set wireless.@wifi-iface[2].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[2].bridge_isolate='1'\n" +
+      "  uci set wireless.@wifi-iface[2].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[2].max_inactivity='120'\n" +
       // transition iface for 5GHz
       "  uci set wireless.@wifi-iface[3].disabled='0'\n" +
@@ -249,6 +260,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[3].ieee80211w='2'\n" +
       "  uci set wireless.@wifi-iface[3].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[3].bridge_isolate='1'\n" +
+      "  uci set wireless.@wifi-iface[3].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[3].max_inactivity='120'");
   } else {
     // Open (no encryption)
@@ -266,6 +278,7 @@ function buildUciDefaults(formValues) {
       "  uci set wireless.@wifi-iface[1].dtim_period=\"3\"\n" +
       "  uci set wireless.@wifi-iface[1].isolate='1'\n" +
       "  uci set wireless.@wifi-iface[1].bridge_isolate='1'\n" +
+      "  uci set wireless.@wifi-iface[1].disassoc_low_ack='0'\n" +
       "  uci set wireless.@wifi-iface[1].max_inactivity='120'");
   }
 
@@ -307,8 +320,8 @@ const BASIC_DEFAULTS = {
   wifiPassword: "12345678",
   channel2Ghz: "11",
   channel5Ghz: "149",
-  downloadSpeed: "30000",
-  uploadSpeed: "30000",
+  downloadSpeed: "30720",
+  uploadSpeed: "30720",
 };
 
 function isAdvancedMode() {
