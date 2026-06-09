@@ -52,6 +52,33 @@ INSTERT_WIFI_IFACES_HERE
 
 INSTERT_SQM_HERE
 
+# Create hotplug script for phy*ap* interfaces
+cat <<'HOTPLUG' > /etc/hotplug.d/iface/99-sqm-phy-ap
+#!/bin/sh
+
+INTERFACE="\${INTERFACE:-\$1}"
+[ "\$ACTION" != "ifup" ] && exit 0
+
+logger -t "sqm-hotplug" "Hotplug triggered for interface: \${INTERFACE}"
+
+case "\$INTERFACE" in
+  phy*ap*)
+    logger -t "sqm-hotplug" "Interface \${INTERFACE} matches phy*ap* pattern, checking SQM config..."
+    if uci -q get sqm.@queue[0] > /dev/null 2>&1; then
+      logger -t "sqm-hotplug" "SQM config found, reloading SQM for \${INTERFACE}"
+      /etc/init.d/sqm reload
+      logger -t "sqm-hotplug" "SQM reload completed for \${INTERFACE}"
+    else
+      logger -t "sqm-hotplug" "No SQM config found, nothing to reload"
+    fi
+    ;;
+  *)
+    logger -t "sqm-hotplug" "Interface \${INTERFACE} does not match phy*ap* pattern, ignoring"
+    ;;
+esac
+HOTPLUG
+chmod +x /etc/hotplug.d/iface/99-sqm-phy-ap
+
 echo "All done!"`;
 
 // ---- Cookie helpers ----
