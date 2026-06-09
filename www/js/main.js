@@ -31,9 +31,12 @@ uci set firewall.@defaults[0].input='ACCEPT'
 uci set firewall.@defaults[0].flow_offloading='1'
 uci set firewall.@zone[1].input='ACCEPT'
 uci set dhcp.lan.leasetime='5m'
+uci set dhcp.@dnsmasq[0].rebind_protection='0'
 uci commit system
 uci commit firewall
 uci commit dhcp
+/etc/init.d/firewall restart
+/etc/init.d/dnsmasq restart
   uci set wireless.@wifi-device[0].disabled='0'
   uci set wireless.@wifi-device[0].country='BO'
   uci set wireless.@wifi-device[0].htmode='HT20'
@@ -47,10 +50,11 @@ INSTERT_5GHZ_CHANNEL_HERE
 INSTERT_WIFI_IFACES_HERE
   uci commit wireless
   wifi
-  sleep 20
-  /etc/init.d/sqm restart
 
 INSTERT_SQM_HERE
+
+sleep 20
+/etc/init.d/sqm restart
 
 # Create hotplug script for phy*ap* interfaces
 cat <<'HOTPLUG' > /etc/hotplug.d/iface/99-sqm-phy-ap
