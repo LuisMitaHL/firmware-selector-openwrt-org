@@ -130,7 +130,7 @@ function buildUciDefaults(formValues) {
     '[ -z "$WAN_DEVICE" ] && WAN_DEVICE=$(uci -q get network.wan.ifname)\n' +
     'if [ -n "$WAN_DEVICE" ]; then\n' +
     '  uci add sqm queue\n' +
-    '  uci set sqm.@queue[-1].enabled=\'1\'\n' +
+    '  uci set sqm.@queue[-1].enabled=\'0\'\n' +
     '  uci set sqm.@queue[-1].interface="$WAN_DEVICE"\n' +
     '  uci set sqm.@queue[-1].qdisc=\'cake\'\n' +
     '  uci set sqm.@queue[-1].script=\'piece_of_cake.qos\'\n' +
