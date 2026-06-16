@@ -5,8 +5,6 @@ generador de firmware para OpenWrt, diseñado para simplificar el despliegue de
 routers en situaciones de emergencia. Está construido con HTML, CSS y JavaScript
 puro — sin dependencias del lado del servidor.
 
-![captura de pantalla](misc/screenshot.png)
-
 ## Inicio rápido
 
 1. Descarga los archivos y entra al directorio del proyecto
